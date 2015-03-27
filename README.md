@@ -12,3 +12,5 @@ Usage:
 - Use task manager to kill eldorado.exe when you want to exit.
 
 If you like my work maybe you'll be interested in my sh2proxy (Silent Hill 2 modern compatibility fix): https://github.com/emoose/sh2proxy/
+
+P.S. ILY /v/, but why are you so mad?
