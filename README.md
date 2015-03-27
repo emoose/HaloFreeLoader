@@ -9,3 +9,6 @@ Usage:
 - Let it load up into the mainmenu map (the part where it starts counting down to game close)
 - Alt+tab out, go to your HaloFreeLoader command prompt and hit enter
 - Alt+tab back in, enjoy!
+- Use task manager to kill eldorado.exe when you want to exit.
+
+If you like my work maybe you'll be interested in my sh2proxy: https://github.com/emoose/sh2proxy/
