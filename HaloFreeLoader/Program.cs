@@ -42,6 +42,7 @@ namespace HaloFreeLoader
                 Console.WriteLine("usage: HaloFreeLoader.exe <mapfilename>");
                 Console.WriteLine("eg. HaloFreeLoader.exe s3d_turf");
                 Console.WriteLine("Run that after the game gets to the 15 second countdown");
+                return;
             }
 
             string mapFile = args[0];
@@ -49,8 +50,24 @@ namespace HaloFreeLoader
             Process[] procs = Process.GetProcessesByName("eldorado");
             if (procs.Length <= 0)
             {
-                Console.WriteLine("Couldn't find eldorado.exe, make sure the game is running.\nPress enter to continue.");
-                Console.ReadLine();
+                Console.WriteLine("Couldn't find eldorado.exe, trying to run it...");
+                
+                //, make sure the game is running.\nPress enter to continue.");
+                //Console.ReadLine();
+                //return;
+                ProcessStartInfo psi = new ProcessStartInfo();
+                psi.FileName = "eldorado.exe";
+                psi.WorkingDirectory = System.IO.Directory.GetCurrentDirectory();
+                psi.Arguments = "--account 123 --sign-in-code 123";
+                Process.Start(psi);
+                Console.WriteLine("Process started, sleeping for 10 seconds...");
+                System.Threading.Thread.Sleep(5 * 1000);
+                procs = Process.GetProcessesByName("eldorado");
+            }
+
+            if(procs.Length <= 0)
+            {
+                Console.WriteLine("Failed to start eldorado.exe :(");
                 return;
             }
 
@@ -67,11 +84,43 @@ namespace HaloFreeLoader
             int lpNumberOfBytesWritten = 0;
             WriteProcessMemory(p, (IntPtr)(0x5056D0), retn, 1, out lpNumberOfBytesWritten);
 
+            Console.WriteLine("Patching MP mode fix...");
+            // fix for MP mode
+            byte[] nop = { 0x90, 0x90, 0x90, 0x90, 0x90 };
+            WriteProcessMemory(p, (IntPtr)(0x6D26DF), nop, 5, out lpNumberOfBytesWritten);
+
+/* B8 1E 45 40
+search that
+its the jump height
+and replace it with 00 00 70 41
+
+8 bytes after the tag class
+should be its identifier
+replace that with 4 byte of FF*/
+
             if(forceLoad)
             {
                 Console.WriteLine("Forceloading map \"" + map + "\"...");
+
+                while(true)
+                {
+                    byte[] mapResetTest = new byte[1];
+                    int lpNumberOfBytesRead = 0;
+                    ReadProcessMemory(p, (IntPtr)(0x23917F0), mapResetTest, 1, out lpNumberOfBytesRead);
+                    if(mapResetTest[0] == 0)
+                        break;
+                    Console.WriteLine("Waiting 3secs for map to finish loading before loading another one...");
+                    System.Threading.Thread.Sleep(3 * 1000);
+                }
+
                 byte[] mapReset = { 0x1 };
-                byte[] mapType = { 0x1, 0, 0, 0 };
+
+                // load as campaign map
+                //byte[] mapType = { 0x1, 0, 0, 0 };
+
+                // load as MP map
+                byte[] mapType = { 0x2, 0, 0, 0 };
+
                 byte[] mapName = Encoding.ASCII.GetBytes(map);
                 
                 WriteProcessMemory(p, (IntPtr)(0x23917F0), mapReset, 1, out lpNumberOfBytesWritten);
