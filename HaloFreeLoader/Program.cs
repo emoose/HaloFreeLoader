@@ -61,7 +61,7 @@ namespace HaloFreeLoader
                 psi.Arguments = "--account 123 --sign-in-code 123";
                 Process.Start(psi);
                 Console.WriteLine("Process started, sleeping for 10 seconds...");
-                System.Threading.Thread.Sleep(5 * 1000);
+                System.Threading.Thread.Sleep(10 * 1000);
                 procs = Process.GetProcessesByName("eldorado");
             }
 
